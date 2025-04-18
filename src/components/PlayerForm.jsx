@@ -19,7 +19,7 @@ export const PlayerProfileForm = ({ onSubmit }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData); // pass the whole form data to parent
+    onSubmit(formData); 
   };
 
   return (
