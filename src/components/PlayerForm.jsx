@@ -86,7 +86,7 @@ export const PlayerProfileForm = ({ onSubmit }) => {
       />
 
       <input
-        name="RoomCode"
+        name="roomCode"
         placeholder="Room Code"
         value={formData.roomCode}
         onChange={handleChange}

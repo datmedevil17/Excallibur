@@ -15,13 +15,9 @@ import { CharacterController } from "./CharacterController";
 import { Map } from "./Map";
 
 export const Experience = ({ downgradedPerformance = false, playerData }) => {
-  // Store players in a map for deterministic ordering
   const [playersMap, setPlayersMap] = useState({});
-
-  // Get weapon stats dynamically based on playerData.weapon
   const weaponStats = Stats.find((item) => item.type === playerData.weapon);
 
-  // If no weapon is found in Stats, the player weapon type may be invalid
   if (!weaponStats) {
     console.error(`Weapon type ${playerData.weapon} not found in Stats.json`);
     return null;
@@ -30,9 +26,7 @@ export const Experience = ({ downgradedPerformance = false, playerData }) => {
   const { FIRE_RATE, BULLET_SPEED, DAMAGE, MOVEMENT_SPEED } = weaponStats;
 
   useEffect(() => {
-    // Register join handler before starting
     onPlayerJoin((state) => {
-      // Create joystick for this player
       const joystick = new Joystick(state, {
         type: "angular",
         buttons: [{ id: "fire", label: "Fire" }],
@@ -42,8 +36,6 @@ export const Experience = ({ downgradedPerformance = false, playerData }) => {
       state.setState("health", 100);
       state.setState("deaths", 0);
       state.setState("kills", 0);
-
-      // If this is the local player, apply the full profile
       const isMe = state.id === myPlayer()?.id;
       if (isMe) {
         state.setState("profile2", {
@@ -59,15 +51,11 @@ export const Experience = ({ downgradedPerformance = false, playerData }) => {
         });
       }
 
-      // Otherwise, do NOT override: remote clients will set their own profile2
-
-      // Insert into our players map
       setPlayersMap((prev) => ({
         ...prev,
         [state.id]: { state, joystick },
       }));
 
-      // Clean up when this player leaves
       state.onQuit(() => {
         setPlayersMap((prev) => {
           const next = { ...prev };
@@ -78,14 +66,12 @@ export const Experience = ({ downgradedPerformance = false, playerData }) => {
     });
 
     // Finally, join the game
-    insertCoin({ skipLobby: true }).catch(console.error);
+    insertCoin({ skipLobby: true, roomCode:playerData?.roomCode}).catch(console.error);
   }, []);
 
-  // Local bullet/hit state
   const [bullets, setBullets] = useState([]);
   const [hits, setHits] = useState([]);
 
-  // Network-synced state
   const [networkBullets, setNetworkBullets] = useMultiplayerState(
     "bullets",
     []
@@ -109,7 +95,6 @@ export const Experience = ({ downgradedPerformance = false, playerData }) => {
     }
   };
 
-  // Build render list: local first, then sorted remotes
   const localId = myPlayer()?.id;
   const localEntry =
     localId && playersMap[localId] ? [playersMap[localId]] : [];
