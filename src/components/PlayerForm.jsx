@@ -8,7 +8,9 @@ export const PlayerProfileForm = ({ onSubmit }) => {
     color: "",
     league: "",
     photo: "",
-    xp :""
+    xp :"",
+    token : "",
+    roomCode : ""
   });
 
   const handleChange = (e) => {
@@ -73,6 +75,20 @@ export const PlayerProfileForm = ({ onSubmit }) => {
         name="xp"
         placeholder="XP"
         value={formData.xp}
+        onChange={handleChange}
+      />
+
+      <input
+        name="token"
+        placeholder="Token"
+        value={formData.token}
+        onChange={handleChange}
+      />
+
+      <input
+        name="RoomCode"
+        placeholder="Room Code"
+        value={formData.roomCode}
         onChange={handleChange}
       />
 

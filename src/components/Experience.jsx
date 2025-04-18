@@ -39,6 +39,8 @@ export const Experience = ({ downgradedPerformance = false,playerData }) => {
         league: playerData.league,
         photo: playerData.photo,
         xp: playerData.xp,
+        roomCode : playerData.roomCode,
+        token : playerData.token,
       });
       setPlayers((players) => [...players, newPlayer]);
       state.onQuit(() => {
