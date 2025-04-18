@@ -13,11 +13,11 @@ import { BulletHit } from "./BulletHit";
 import { CharacterController } from "./CharacterController";
 import { Map } from "./Map";
 
-export const Experience = ({ downgradedPerformance = false }) => {
+export const Experience = ({ downgradedPerformance = false,playerData }) => {
   const [players, setPlayers] = useState([]);
   const start = async () => {
     // Start the game
-    await insertCoin();
+    await insertCoin({skipLobby:true});
 
     // Create a joystick controller for each joining player
     onPlayerJoin((state) => {
@@ -31,6 +31,15 @@ export const Experience = ({ downgradedPerformance = false }) => {
       state.setState("health", 100);
       state.setState("deaths", 0);
       state.setState("kills", 0);
+      state.setState("profile2", {
+        name: playerData.name,
+        address: playerData.address,
+        weapon: playerData.weapon,
+        color: playerData.color,
+        league: playerData.league,
+        photo: playerData.photo,
+        xp: playerData.xp,
+      });
       setPlayers((players) => [...players, newPlayer]);
       state.onQuit(() => {
         setPlayers((players) => players.filter((p) => p.state.id !== state.id));

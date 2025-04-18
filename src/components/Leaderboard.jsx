@@ -11,17 +11,24 @@ export const Leaderboard = () => {
             className={`bg-white  bg-opacity-60 backdrop-blur-sm flex items-center rounded-lg gap-2 p-2 min-w-[140px]`}
           >
             <img
-              src={player.state.profile?.photo || ""}
+              src={player.state.profile2?.photo || ""}
               className="w-10 h-10 border-2 rounded-full"
               style={{
-                borderColor: player.state.profile?.color,
+                borderColor: player.state.profile2?.color,
               }}
             />
             <div className="flex-grow">
               <h2 className={`font-bold text-sm`}>
-                {player.state.profile?.name}
+                {player.state.profile2?.name}
               </h2>
               <div className="flex text-sm items-center gap-4">
+              {player.state.profile2?.league && (
+            <img
+              src={`/ranks/${player.state.profile2.league.toLowerCase()}.png`}
+              alt="league"
+              className="w-4 h-4"
+            />
+          )}
                 <p>🔫 {player.state.kills}</p>
                 <p>💀 {player.state.deaths}</p>
               </div>

@@ -1,8 +1,9 @@
 import { Billboard, CameraControls, Text } from "@react-three/drei";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useFrame, useLoader, useThree } from "@react-three/fiber";
 import { CapsuleCollider, RigidBody, vec3 } from "@react-three/rapier";
 import { isHost } from "playroomkit";
 import { useEffect, useRef, useState } from "react";
+import { TextureLoader } from "three";
 import { CharacterSoldier } from "./CharacterSoldier";
 const MOVEMENT_SPEED = 202;
 const FIRE_RATE = 380;
@@ -181,7 +182,7 @@ export const CharacterController = ({
         <PlayerInfo state={state.state} />
         <group ref={character}>
           <CharacterSoldier
-            color={state.state.profile?.color}
+            color={state.state.profile2?.color || "#4287f5"}
             animation={animation}
             weapon={weapon}
           />
@@ -219,22 +220,52 @@ export const CharacterController = ({
 
 const PlayerInfo = ({ state }) => {
   const health = state.health;
-  const name = state.profile.name;
+  const profile = state.profile2;
+  const name = profile?.name || "";
+  const address = profile?.address || "";
+  const league = profile?.league?.toLowerCase() || 'private'; // default to bronze
+
+  const leagueTexture = useLoader(TextureLoader, `/ranks/${league}.png`);
   return (
     <Billboard position-y={2.5}>
-      <Text position-y={0.36} fontSize={0.4}>
-        {name}
-        <meshBasicMaterial color={state.profile.color} />
-      </Text>
-      <mesh position-z={-0.1}>
-        <planeGeometry args={[1, 0.2]} />
-        <meshBasicMaterial color="black" transparent opacity={0.5} />
-      </mesh>
-      <mesh scale-x={health / 100} position-x={-0.5 * (1 - health / 100)}>
-        <planeGeometry args={[1, 0.2]} />
-        <meshBasicMaterial color="red" />
-      </mesh>
-    </Billboard>
+  {/* Address */}
+  <Text position-y={0.75} fontSize={0.3}>
+    {address}
+    <meshBasicMaterial color="black" />
+  </Text>
+
+  {/* Group: League Badge + Name (with reduced spacing) */}
+  <group position-y={0.36}>
+    {/* League badge closer to the name */}
+    <mesh position={[-(name.length * 0.11 + 0.25), 0, 0]}>
+      <planeGeometry args={[0.3, 0.3]} />
+      <meshBasicMaterial map={leagueTexture} transparent />
+    </mesh>
+
+    {/* Name */}
+    <Text fontSize={0.4}>
+      {name}
+      <meshBasicMaterial color="black" />
+    </Text>
+  </group>
+
+  {/* Health Bar Background - increased size */}
+  <mesh position-z={-0.1}>
+    <planeGeometry args={[1.5, 0.2]} />
+    <meshBasicMaterial color="black" transparent opacity={0.5} />
+  </mesh>
+
+  {/* Health Bar Fill - adjusted to match new width */}
+  <mesh
+    scale-x={(health / 100) * 1.5}
+    position-x={-0.5 * (1 - health / 100)}
+  >
+    <planeGeometry args={[1.5, 0.2]} />
+    <meshBasicMaterial color="red" />
+  </mesh>
+</Billboard>
+
+
   );
 };
 
