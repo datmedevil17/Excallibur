@@ -7,6 +7,7 @@ import {
   onPlayerJoin,
   useMultiplayerState,
 } from "playroomkit";
+import Stats from "./Stats.json";
 import { useEffect, useState } from "react";
 import { Bullet } from "./Bullet";
 import { BulletHit } from "./BulletHit";
@@ -16,6 +17,17 @@ import { Map } from "./Map";
 export const Experience = ({ downgradedPerformance = false, playerData }) => {
   // Store players in a map for deterministic ordering
   const [playersMap, setPlayersMap] = useState({});
+
+  // Get weapon stats dynamically based on playerData.weapon
+  const weaponStats = Stats.find((item) => item.type === playerData.weapon);
+
+  // If no weapon is found in Stats, the player weapon type may be invalid
+  if (!weaponStats) {
+    console.error(`Weapon type ${playerData.weapon} not found in Stats.json`);
+    return null;
+  }
+
+  const { FIRE_RATE, BULLET_SPEED, DAMAGE, MOVEMENT_SPEED } = weaponStats;
 
   useEffect(() => {
     // Register join handler before starting
@@ -35,17 +47,18 @@ export const Experience = ({ downgradedPerformance = false, playerData }) => {
       const isMe = state.id === myPlayer()?.id;
       if (isMe) {
         state.setState("profile2", {
-          name:     playerData.name,
-          address:  playerData.address,
-          weapon:   playerData.weapon,
-          color:    playerData.color,
-          league:   playerData.league,
-          photo:    playerData.photo,
-          xp:       playerData.xp,
+          name: playerData.name,
+          address: playerData.address,
+          weapon: playerData.weapon,
+          color: playerData.color,
+          league: playerData.league,
+          photo: playerData.photo,
+          xp: playerData.xp,
           roomCode: playerData.roomCode,
-          token:    playerData.token,
+          token: playerData.token,
         });
       }
+
       // Otherwise, do NOT override: remote clients will set their own profile2
 
       // Insert into our players map
@@ -73,7 +86,10 @@ export const Experience = ({ downgradedPerformance = false, playerData }) => {
   const [hits, setHits] = useState([]);
 
   // Network-synced state
-  const [networkBullets, setNetworkBullets] = useMultiplayerState("bullets", []);
+  const [networkBullets, setNetworkBullets] = useMultiplayerState(
+    "bullets",
+    []
+  );
   const [networkHits, setNetworkHits] = useMultiplayerState("hits", []);
 
   const onFire = (bullet) => setBullets((b) => [...b, bullet]);
@@ -89,16 +105,14 @@ export const Experience = ({ downgradedPerformance = false, playerData }) => {
   const onKilled = (_victim, killer) => {
     const killerState = playersMap[killer]?.state;
     if (killerState) {
-      killerState.setState(
-        "kills",
-        killerState.state.kills + 1
-      );
+      killerState.setState("kills", killerState.state.kills + 1);
     }
   };
 
   // Build render list: local first, then sorted remotes
   const localId = myPlayer()?.id;
-  const localEntry = localId && playersMap[localId] ? [playersMap[localId]] : [];
+  const localEntry =
+    localId && playersMap[localId] ? [playersMap[localId]] : [];
   const others = Object.entries(playersMap)
     .filter(([id]) => id !== localId)
     .sort(([a], [b]) => a.localeCompare(b))
@@ -117,12 +131,20 @@ export const Experience = ({ downgradedPerformance = false, playerData }) => {
           onFire={onFire}
           onKilled={onKilled}
           downgradedPerformance={downgradedPerformance}
+          FIRE_RATE={FIRE_RATE}
+          MOVEMENT_SPEED={MOVEMENT_SPEED}
         />
       ))}
 
       {/* Bullets & Hits */}
       {(isHost() ? bullets : networkBullets).map((b) => (
-        <Bullet key={b.id} {...b} onHit={(pos) => onHit(b.id, pos)} />
+        <Bullet
+          key={b.id}
+          {...b}
+          onHit={(pos) => onHit(b.id, pos)}
+          BULLET_SPEED={BULLET_SPEED}
+          DAMAGE={DAMAGE}
+        />
       ))}
       {(isHost() ? hits : networkHits).map((h) => (
         <BulletHit key={h.id} {...h} onEnded={() => onHitEnded(h.id)} />

@@ -4,7 +4,6 @@ import { useEffect, useRef } from "react";
 import { MeshBasicMaterial } from "three";
 import { WEAPON_OFFSET } from "./CharacterController";
 
-const BULLET_SPEED = 20;
 
 const bulletMaterial = new MeshBasicMaterial({
   color: "hotpink",
@@ -13,7 +12,7 @@ const bulletMaterial = new MeshBasicMaterial({
 
 bulletMaterial.color.multiplyScalar(42);
 
-export const Bullet = ({ player, angle, position, onHit }) => {
+export const Bullet = ({ player, angle, position, onHit ,BULLET_SPEED,DAMAGE}) => {
   const rigidbody = useRef();
 
   useEffect(() => {
@@ -48,7 +47,7 @@ export const Bullet = ({ player, angle, position, onHit }) => {
           userData={{
             type: "bullet",
             player,
-            damage: 10,
+            damage: DAMAGE,
           }}
         >
           <mesh position-z={0.25} material={bulletMaterial} castShadow>

@@ -5,8 +5,7 @@ import { isHost } from "playroomkit";
 import { useEffect, useRef, useState } from "react";
 import { TextureLoader } from "three";
 import { CharacterSoldier } from "./CharacterSoldier";
-const MOVEMENT_SPEED = 202;
-const FIRE_RATE = 380;
+
 export const WEAPON_OFFSET = {
   x: -0.2,
   y: 1.4,
@@ -20,15 +19,16 @@ export const CharacterController = ({
   onKilled,
   onFire,
   downgradedPerformance,
+  FIRE_RATE,
+  MOVEMENT_SPEED,
   ...props
 }) => {
   const group = useRef();
   const character = useRef();
   const rigidbody = useRef();
   const [animation, setAnimation] = useState("Idle");
-  const [weapon, setWeapon] = useState("AK");
+  const [weapon, setWeapon] = useState(state?.state?.profile2?.weapon || "Pistol");
   const lastShoot = useRef(0);
-
   const scene = useThree((state) => state.scene);
   const spawnRandomly = () => {
     const spawns = [];
@@ -251,16 +251,13 @@ const PlayerInfo = ({ state }) => {
 
   {/* Health Bar Background - increased size */}
   <mesh position-z={-0.1}>
-    <planeGeometry args={[1.5, 0.2]} />
+    <planeGeometry args={[1, 0.2]} />
     <meshBasicMaterial color="black" transparent opacity={0.5} />
   </mesh>
 
   {/* Health Bar Fill - adjusted to match new width */}
-  <mesh
-    scale-x={(health / 100) * 1.5}
-    position-x={-0.5 * (1 - health / 100)}
-  >
-    <planeGeometry args={[1.5, 0.2]} />
+  <mesh scale-x={health / 100} position-x={-0.5 * (1 - health / 100)}>
+        <planeGeometry args={[1, 0.2]} />
     <meshBasicMaterial color="red" />
   </mesh>
 </Billboard>
